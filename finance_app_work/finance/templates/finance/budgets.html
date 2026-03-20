@@ -1,0 +1,77 @@
+{% extends 'finance/base.html' %}
+{% block title_suffix %} — Budgets{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title-group">
+    <h1 class="page-greeting" style="font-size:22px">Budgets</h1>
+    <p class="page-subtitle">{{ month_name }} spending limits</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-primary" onclick="openModal('addBudgetModal')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Budget
+    </button>
+  </div>
+</div>
+
+<div class="page-body">
+  {% if budget_data %}
+  {% for item in budget_data %}
+  <div class="goal-card">
+    <div class="goal-header">
+      <div>
+        <div class="goal-name">{{ item.budget.category }}</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">
+          ${{ item.spent|floatformat:2 }} of ${{ item.budget.limit_amount|floatformat:2 }} spent
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="goal-percent {% if item.over_budget %}text-red{% endif %}">{{ item.percent|floatformat:0 }}%</div>
+        {% if item.over_budget %}
+        <div style="font-size:10px;color:var(--red)">Over budget</div>
+        {% else %}
+        <div style="font-size:10px;color:var(--text-secondary)">${{ item.remaining|floatformat:2 }} left</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner {% if item.over_budget %}red{% elif item.percent > 80 %}yellow{% else %}purple{% endif %}"
+           style="width:{{ item.percent|floatformat:0 }}%"></div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>
+      </div>
+      <div class="empty-state-title">No budgets set</div>
+      <div class="empty-state-desc">Set spending limits per category to track your budget</div>
+      <button class="btn btn-primary" onclick="openModal('addBudgetModal')">Add Budget</button>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="modal-overlay" id="addBudgetModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Budget</span>
+      <button class="modal-close" onclick="closeModal('addBudgetModal')">✕</button>
+    </div>
+    <form method="post" action="{% url 'add_budget' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input type="text" name="category" class="form-input" placeholder="e.g. Food, Transport, Shopping" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Monthly Limit ($)</label>
+        <input type="number" name="limit_amount" step="0.01" min="0" class="form-input" placeholder="500.00" required/>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Save Budget</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

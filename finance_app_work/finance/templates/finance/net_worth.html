@@ -1,0 +1,84 @@
+{% extends 'finance/base.html' %}
+{% block title_suffix %} — Net Worth{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title-group">
+    <h1 class="page-greeting" style="font-size:22px">Net Worth</h1>
+    <p class="page-subtitle">Your total financial picture</p>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="stats-row">
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Net Worth</span>
+        <div class="kpi-icon kpi-icon-purple">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value" style="{% if net_worth >= 0 %}color:var(--text){% else %}color:var(--red){% endif %}">${{ net_worth|floatformat:2 }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Total Assets</span>
+        <div class="kpi-icon kpi-icon-green">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value text-green">${{ total_assets|floatformat:2 }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Total Liabilities</span>
+        <div class="kpi-icon kpi-icon-red">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value text-red">${{ total_liabilities|floatformat:2 }}</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title text-green">Assets</div>
+        <span class="badge badge-green">${{ total_assets|floatformat:2 }}</span>
+      </div>
+      {% if assets %}
+      {% for acc in assets %}
+      <div class="nw-asset-row">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text)">{{ acc.name }}</div>
+          <div class="nw-label">{{ acc.get_account_type_display }} · ····{{ acc.last_four }}</div>
+        </div>
+        <div class="nw-value text-green">${{ acc.balance|floatformat:2 }}</div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state" style="padding:24px">No asset accounts</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title text-red">Liabilities</div>
+        <span class="badge badge-red">${{ total_liabilities|floatformat:2 }}</span>
+      </div>
+      {% if liabilities %}
+      {% for acc in liabilities %}
+      <div class="nw-asset-row">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text)">{{ acc.name }}</div>
+          <div class="nw-label">{{ acc.get_account_type_display }} · ····{{ acc.last_four }}</div>
+        </div>
+        <div class="nw-value text-red">-${{ acc.balance|floatformat:2 }}</div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state" style="padding:24px">No liabilities</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

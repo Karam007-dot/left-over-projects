@@ -1,0 +1,81 @@
+{% extends 'finance/base.html' %}
+{% block title_suffix %} — Accounts{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title-group">
+    <h1 class="page-greeting" style="font-size:22px">Accounts</h1>
+    <p class="page-subtitle">All your linked bank accounts</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-primary" onclick="connectBank()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Connect Bank
+    </button>
+  </div>
+</div>
+
+<div class="page-body">
+  <!-- Summary -->
+  <div class="stats-row">
+    <div class="card" style="padding:16px">
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">Total Assets</div>
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--green)">${{ total_assets|floatformat:2 }}</div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">Total Liabilities</div>
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--red)">${{ total_liabilities|floatformat:2 }}</div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">Net Worth</div>
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700">${{ total_assets|floatformat:2 }}</div>
+    </div>
+  </div>
+
+  {% if accounts %}
+  <div class="account-cards-grid">
+    {% for account in accounts %}
+    <div class="account-card">
+      <div class="account-card-header">
+        <div class="account-icon account-icon-{{ account.account_type }}" style="width:38px;height:38px;font-size:18px">
+          {% if account.account_type == 'checking' %}🏦
+          {% elif account.account_type == 'savings' %}💰
+          {% elif account.account_type == 'credit' %}💳
+          {% elif account.account_type == 'investment' %}📈
+          {% else %}🏛️{% endif %}
+        </div>
+        <span class="badge {% if account.account_type == 'credit' or account.account_type == 'loan' %}badge-red{% elif account.account_type == 'savings' %}badge-green{% elif account.account_type == 'investment' %}badge-yellow{% else %}badge-blue{% endif %} account-type-badge">
+          {{ account.get_account_type_display }}
+        </span>
+      </div>
+      <div class="account-card-balance {% if account.is_liability %}text-red{% endif %}">
+        {% if account.is_liability %}-{% endif %}${{ account.balance|floatformat:2 }}
+      </div>
+      <div class="account-card-name">{{ account.name }}</div>
+      <div class="account-card-sub">{% if account.official_name %}{{ account.official_name }} · {% endif %}····{{ account.last_four }}</div>
+      {% if account.available_balance %}
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border);font-size:11px;color:var(--text-secondary)">
+        Available: <span style="color:var(--text)">${{ account.available_balance|floatformat:2 }}</span>
+      </div>
+      {% endif %}
+      <div style="margin-top:10px">
+        <a href="{% url 'delete_account' account.pk %}"
+           onclick="return confirm('Remove this account?')"
+           class="btn btn-danger btn-sm">Remove</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      </div>
+      <div class="empty-state-title">No accounts connected</div>
+      <div class="empty-state-desc">Connect a bank account to get started</div>
+      <button class="btn btn-primary" onclick="connectBank()">Connect Bank</button>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

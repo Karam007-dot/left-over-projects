@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finio{% block title_suffix %} — Dashboard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="{% static 'finance/css/style.css' %}"/>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- MOBILE TOP BAR -->
+  <div class="mobile-topbar">
+    <button class="mobile-menu-btn" onclick="openMobileMenu()" aria-label="Open menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="mobile-logo">
+      <div class="logo-icon" style="width:26px;height:26px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="logo-text" style="font-size:16px;">Finio</span>
+    </div>
+    <button class="mobile-connect-btn" onclick="connectBank()" aria-label="Connect bank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    </button>
+  </div>
+
+  <!-- MOBILE OVERLAY -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="logo-text">Finio</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-label">OVERVIEW</span>
+        <a href="{% url 'dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a href="{% url 'net_worth' %}" class="nav-item {% if active_page == 'net_worth' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Net Worth
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">MONEY</span>
+        <a href="{% url 'transactions' %}" class="nav-item {% if active_page == 'transactions' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          Transactions
+        </a>
+        <a href="{% url 'accounts' %}" class="nav-item {% if active_page == 'accounts' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Accounts
+        </a>
+        <a href="{% url 'budgets' %}" class="nav-item {% if active_page == 'budgets' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          Budgets
+        </a>
+        <a href="{% url 'goals' %}" class="nav-item {% if active_page == 'goals' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          Goals
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">INSIGHTS</span>
+        <a href="{% url 'analytics' %}" class="nav-item {% if active_page == 'analytics' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </a>
+        <a href="{% url 'reports' %}" class="nav-item {% if active_page == 'reports' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Reports
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">SYSTEM</span>
+        <button class="nav-item nav-item-connect" onclick="connectBank(); closeMobileMenu();" id="connect-bank-nav">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Connect Bank
+        </button>
+        <a href="{% url 'settings' %}" class="nav-item {% if active_page == 'settings' %}active{% endif %}" onclick="closeMobileMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07M8.46 8.46a5 5 0 000 7.07"/></svg>
+          Settings
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+        <span class="user-email">{{ request.user.email|default:"Personal" }}</span>
+      </div>
+      <a href="{% url 'logout' %}" class="logout-btn" title="Sign out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+      <div class="message message-{{ message.tags }}">
+        {{ message }}
+        <button onclick="this.parentElement.remove()" class="message-close">✕</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script src="{% static 'finance/js/main.js' %}"></script>
+<script>
+function openMobileMenu() {
+  document.getElementById('sidebar').classList.add('mobile-open');
+  document.getElementById('mobileOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

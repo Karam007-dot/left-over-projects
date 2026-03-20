@@ -1,0 +1,123 @@
+{% extends 'finance/base.html' %}
+{% block title_suffix %} — Transactions{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title-group">
+    <h1 class="page-greeting" style="font-size:22px">Transactions</h1>
+    <p class="page-subtitle">All your financial activity in one place</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-primary" onclick="openModal('addTxnModal')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add
+    </button>
+  </div>
+</div>
+
+<div class="page-body">
+  <!-- Filter bar -->
+  <form method="get" class="filter-bar">
+    <div class="search-bar" style="flex:1;min-width:200px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" name="search" class="form-input" placeholder="Search transactions..." value="{{ search }}"/>
+    </div>
+    <select name="category" class="form-select" style="width:auto;min-width:160px">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+      <option value="{{ cat }}" {% if cat == category_filter %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    {% if category_filter or search %}<a href="{% url 'transactions' %}" class="btn btn-ghost">Clear</a>{% endif %}
+  </form>
+
+  <div class="card" style="overflow:hidden">
+    {% if transactions %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Account</th>
+          <th>Date</th>
+          <th style="text-align:right">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for txn in transactions %}
+        <tr>
+          <td>
+            <div style="font-weight:500;color:var(--text)">{{ txn.name }}</div>
+            {% if txn.merchant_name and txn.merchant_name != txn.name %}
+            <div style="font-size:11px;color:var(--text-secondary)">{{ txn.merchant_name }}</div>
+            {% endif %}
+          </td>
+          <td>
+            {% if txn.category %}
+            <span class="badge badge-purple">{{ txn.category }}</span>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td>
+            {% if txn.account %}
+            <span style="font-size:12px;color:var(--text-secondary)">{{ txn.account.name }}</span>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td><span style="font-size:12px;color:var(--text-secondary)">{{ txn.date }}</span></td>
+          <td style="text-align:right">
+            <span class="{% if txn.amount > 0 %}text-red{% else %}text-green{% endif %}" style="font-family:'DM Mono',monospace;font-weight:500">
+              {% if txn.amount > 0 %}-{% else %}+{% endif %}${{ txn.amount|floatformat:2|cut:"-" }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      </div>
+      <div class="empty-state-title">No transactions yet</div>
+      <div class="empty-state-desc">Connect your bank and sync to see transactions, or add them manually.</div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('addTxnModal')">Add Transaction</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="modal-overlay" id="addTxnModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Transaction</span>
+      <button class="modal-close" onclick="closeModal('addTxnModal')">✕</button>
+    </div>
+    <form method="post" action="{% url 'add_transaction' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <input type="text" name="name" class="form-input" placeholder="e.g. Coffee Shop" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount ($)</label>
+        <input type="number" name="amount" step="0.01" min="0" class="form-input" placeholder="0.00" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select name="type" class="form-select">
+          <option value="debit">Expense (Debit)</option>
+          <option value="credit">Income (Credit)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input type="text" name="category" class="form-input" placeholder="e.g. Food, Transport"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" name="date" class="form-input" value="{% now 'Y-m-d' %}"/>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Add Transaction</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
